@@ -4,7 +4,9 @@ import json
 import numpy
 import redis
 import MySQLdb
+
 from math import log
+from math import sqrt
 
 import pycuda.autoinit
 import pycuda.driver as drv
@@ -43,17 +45,21 @@ def genTFArray(words):
   file_count = float(r.incr('file_count'))
   for word_id in appr_word_ids:
     appr_count = float(r.hincrby('word_appr', word_id))
-    r.hset('idfs', word_id, log(file_count / (appr_count + 1)))
+    r.hset('idfs', word_id, log(file_count / (appr_count))) # ... Well, no plus one...
 
   ''' for the words that does NOT exist in words database '''
   for word_id in new_word_ids:
     appr_count = float(r.hset('word_appr', word_id, 1))
-    r.hset('idfs', word_id, log(file_count / (appr_count + 1)))
+    r.hset('idfs', word_id, log(file_count / (appr_count)))
 
   return (len(words), tfs)
 
 def genTF_IDFArray(tf, word_num):
-  tf_idf = []
+  r = redis.Redis()
+  tf_idf = [0.0] * word_num
+  for word_id, count in enumerate(tf):
+    tf_idf[word_id] = sqrt(float(count) / float(word_num)) * float(r.hget('idfs', word_id))
+
   return tf_idf
 
 def createBookRecord(tf_idf, filename):

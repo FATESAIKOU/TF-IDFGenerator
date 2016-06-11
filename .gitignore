@@ -1,3 +1,4 @@
 dataBase/
 jsons/
 src/config.py
+*.pyc
