@@ -12,7 +12,7 @@ import pycuda.autoinit
 import pycuda.driver as drv
 
 sys.path.insert(0, '/home/fatesaikou/testPY/TF-IDFGenerator/src')
-import config
+from config import mysql
 
 def getWords(filename):
   src = open(filename, 'r')
@@ -63,7 +63,27 @@ def genTF_IDFArray(tf, word_num):
   return tf_idf
 
 def createBookRecord(tf_idf, filename):
-  book_rec = {}
+  db = MySQLdb.connect(mysql['host'], mysql['username'], mysql['password'], mysql['database'])
+  cursor = db.cursor()
+
+  ''' Create book record '''
+  cursor.execute('INSERT INTO `books` (`path`) VALUES (\'' + db.escape_string(filename) + '\')')
+  db.commit()
+  book_rec = {'id': cursor.lastrowid}
+  tf_list = sorted(enumerate(tf_idf), key = lambda x: x[1])
+
+  ''' Create tf_idf record for the book '''
+  query = 'INSERT INTO `tf_idfs` (`type`, `link_id`, `word_id`, `value`) VALUES '
+  i = -1
+  while i > -10:
+    (word_id, value) = tf_list[i]
+    query += '(\'book\', \'' + str(book_rec['id']) + '\', \'' + str(word_id) + '\', \'' + str(value) + '\')'
+    if (i > -9): query += ','
+    i -= 1
+  cursor.execute(query)
+  db.commit()
+
+  book_rec['tf_idf'] = tf_idf
   return book_rec
 
 def getSim(tf_idf, threshold):
