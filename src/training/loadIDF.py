@@ -21,4 +21,4 @@ for word_id, idf in enumerate( idfs ):
   r_cli.hset('idfs', word_id, idf)
 
 # Ending
-print 'complete'
+print 'Idfs import complete'
