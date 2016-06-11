@@ -12,7 +12,7 @@ import pycuda.autoinit
 import pycuda.driver as drv
 
 sys.path.insert(0, '/home/fatesaikou/testPY/TF-IDFGenerator/src')
-from config import mysql
+from config import *
 
 def getWords(filename):
   src = open(filename, 'r')
@@ -98,11 +98,28 @@ def createClassRecord(sim_books, tf_idf):
   return 0
 
 def readTF_IDF(type, id):
-  tf_idf = []
+  if type == 'class':
+    path = system_path['class_tf_idf_root'] + '/' + str(id) + '.json'
+  elif type == 'book':
+    path = system_path['book_tf_idf_root'] + '/' + str(id) + '.json'
+
+  src = open(path, 'r')
+  tf_idf = json.loads(src.read())
+  src.close()
+
   return tf_idf
 
-def saveTF_IDF(type, id):
-    return 0
+def saveTF_IDF(type, id, tf_idf):
+  if type == 'class':
+    path = system_path['class_tf_idf_root'] + '/' + str(id) + '.json'
+  elif type == 'book':
+    path = system_path['book_tf_idf_root'] + '/' + str(id) + '.json'
+
+  src = open(path, 'w')
+  src.write(json.dumps(tf_idf))
+  src.close()
+
+  return 0
 
 def getDiff(a, b):
   return 0.0
