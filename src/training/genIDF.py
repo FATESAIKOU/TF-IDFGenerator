@@ -11,6 +11,7 @@ from math import log
 input_files = glob.glob(sys.argv[1] + '*.json')
 word_token_file = sys.argv[2]
 output_file = sys.argv[3]
+output_word_appr_file = sys.argv[4]
 
 # Read words
 src_token = open(word_token_file, 'r')
@@ -38,5 +39,9 @@ for word_id, count in enumerate( dir_count ):
 output = open(output_file, 'w')
 output.write( json.dumps( idf ) )
 output.close()
+
+output_word_appr = open(output_word_appr_file, 'w')
+output_word_appr.write( json.dumps( dir_count ) )
+output_word_appr.close()
 
 print "IDF len", len(idf)
