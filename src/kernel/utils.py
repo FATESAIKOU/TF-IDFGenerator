@@ -1,13 +1,14 @@
 import sys
 import re
 import json
-import numpy
 import redis
+import pprint
 import MySQLdb
 
 from math import log
 from math import sqrt
 
+import numpy as np
 import pycuda.autoinit
 import pycuda.driver as drv
 
@@ -95,7 +96,7 @@ def createClassRecord(sim_books, tf_idf):
   cursor = db.cursor()
 
   ''' Create class record '''
-  cursor.execute('INSERT INTO `classes` (`book_num`) VALUES (\'' + len(sim_books) + '\')')
+  cursor.execute('INSERT INTO `classes` (`book_num`) VALUES (\'' + str(len(sim_books)) + '\')')
   db.commit()
   class_rec = {'id': cursor.lastrowid}
   tf_list = sorted(enumerate(tf_idf), key = lambda x: x[1])
@@ -103,20 +104,20 @@ def createClassRecord(sim_books, tf_idf):
   ''' Create tf_idf record for the class '''
   query = 'INSERT INTO `tf_idfs` (`type`, `link_id`, `word_id`, `value`) VALUES '
   i = -1
-  while i > 10:
+  while i > -10:
     (word_id, value) = tf_list[i]
-    query += '(\'class\', \'' + str(class_rec['id']) + '\', \'' + str(word_id) + '\', \'' + str(value) + '\')'
-    if (i > -9): query += ','
+    query += '(\'class\', \'' + str(class_rec['id']) + '\', \'' + str(word_id) + '\', \'' + str(value) + '\'),'
     i -= 1
-  cursor.execute(query)
+  cursor.execute(query[:-1])
   db.commit()
 
   ''' Create Book to Class record '''
   query = 'INSERT INTO `book_class` (`b_id`, `c_id`, `cos_diff`) VALUES '
   for book_id, cos_diff in sim_books:
-    query += '(\'' + str(book_id) + '\', \'' + str(class_rec['id']) + '\', \'' + str(cos_diff) + '\')'
+    query += '(\'' + str(book_id) + '\', \'' + str(class_rec['id']) + '\', \'' + str(cos_diff) + '\'),'
     ''' This may exceed mysql's limit of query string length !! '''
-  cursor.execute(query)
+
+  cursor.execute(query[:-1])
   db.commit()
 
   ''' Saving tf-idf record to system '''
@@ -161,9 +162,35 @@ def saveTF_IDF(type, id, tf_idf):
 
   return 0
 
-def getSim(tf_idf, threshold):
+def getSim(book_rec, tf_idf, threshold):
+  db = MySQLdb.connect(mysql['host'], mysql['username'], mysql['password'], mysql['database'])
+  cursor = db.cursor()
+
+  np_tf_idf = np.array(tf_idf)
   sim_classes = []
   sim_books = []
+
+  class_id_str = '0'
+  cursor.execute('SELECT * FROM `classes`')
+  for class_item in cursor.fetchall():
+    class_id = class_item[0]
+    c_tf_idf = readTF_IDF('class', class_id)
+    cos_diff = getDiff(tf_idf, c_tf_idf)
+    if cos_diff < threshold:
+      c_tf_idf = ( (np.array(c_tf_idf) * class_item[1] + np_tf_idf) / float(class_item[1]) ).tolist()
+      sim_classes.append( (class_id, c_tf_idf, cos_diff) )
+      class_id_str += ',' + str(class_id)
+
+  cursor.execute('SELECT `books`.`id` FROM `books` LEFT JOIN `book_class` on `book_class`.`b_id` = `books`.`id` and `book_class`.`c_id` NOT IN (' + class_id_str + ')')
+  for book_item in cursor.fetchall():
+    book_id = book_item[0]
+    b_tf_idf = readTF_IDF('book', book_id)
+    cos_diff = getDiff(tf_idf, b_tf_idf)
+    if cos_diff < threshold:
+      sim_books.append((book_id, cos_diff))
+
+  sim_books.append((book_rec['id'], 0.0))
+
   return (sim_classes, sim_books)
 
 def getDiff(a, b):

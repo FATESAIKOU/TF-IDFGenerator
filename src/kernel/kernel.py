@@ -19,7 +19,7 @@ def upload(filename, threshold):
   book_rec = ut.createBookRecord(tf_idf, filename)
 
   """ get all similar class & books with tf_idf & threshold """
-  (sim_classes, sim_books) = ut.getSim(tf_idf, threshold)
+  (sim_classes, sim_books) = ut.getSim(book_rec, tf_idf, threshold)
 
   """ append to the similar class """
   ut.appendToSimClass(sim_classes, book_rec)
