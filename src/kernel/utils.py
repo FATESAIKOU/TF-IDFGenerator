@@ -82,19 +82,59 @@ def createBookRecord(tf_idf, filename):
     i -= 1
   cursor.execute(query)
   db.commit()
+  db.close()
+
+  ''' Saving tf-idf record to system '''
+  saveTF_IDF('book', book_rec['id'], tf_idf)
 
   book_rec['tf_idf'] = tf_idf
   return book_rec
 
-def getSim(tf_idf, threshold):
-  sim_classes = []
-  sim_books = []
-  return (sim_classes, sim_books)
+def createClassRecord(sim_books, tf_idf):
+  db = MySQLdb.connect(mysql['host'], mysql['username'], mysql['password'], mysql['database'])
+  cursor = db.cursor()
 
-def appendToSimClass(sim_classes, book_rec):
+  ''' Create class record '''
+  cursor.execute('INSERT INTO `classes` (`book_num`) VALUES (\'' + len(sim_books) + '\')')
+  db.commit()
+  class_rec = {'id': cursor.lastrowid}
+  tf_list = sorted(enumerate(tf_idf), key = lambda x: x[1])
+
+  ''' Create tf_idf record for the class '''
+  query = 'INSERT INTO `tf_idfs` (`type`, `link_id`, `word_id`, `value`) VALUES '
+  i = -1
+  while i > 10:
+    (word_id, value) = tf_list[i]
+    query += '(\'class\', \'' + str(class_rec['id']) + '\', \'' + str(word_id) + '\', \'' + str(value) + '\')'
+    if (i > -9): query += ','
+    i -= 1
+  cursor.execute(query)
+  db.commit()
+
+  ''' Create Book to Class record '''
+  query = 'INSERT INTO `book_class` (`b_id`, `c_id`, `cos_diff`) VALUES '
+  for book_id, cos_diff in sim_books:
+    query += '(\'' + str(book_id) + '\', \'' + str(class_rec['id']) + '\', \'' + str(cos_diff) + '\')'
+    ''' This may exceed mysql's limit of query string length !! '''
+  cursor.execute(query)
+  db.commit()
+
+  ''' Saving tf-idf record to system '''
+  saveTF_IDF('class', class_rec['id'], tf_idf)
+
   return 0
 
-def createClassRecord(sim_books, tf_idf):
+def appendToSimClass(sim_classes, book_rec):
+  db = MySQLdb.connect(mysql['host'], mysql['username'], mysql['password'], mysql['database'])
+  cursor = db.cursor()
+
+  for class_id, new_tf_idf, cos_diff in sim_classes:
+    cursor.execute('INSERT INTO `book_class` (`b_id`, `c_id`, `cos_diff`) VALUES (\'' + str(book_rec['id']) + '\', \'' + str(class_id) + '\', \'' + str(cos_diff) + '\')')
+    saveTF_IDF('class', class_id, new_tf_idf)
+    cursor.execute('UPDATE `classes` SET `book_num` = `book_num` + 1 WHERE `id` = ' + str(class_id))
+
+  db.commit()
+
   return 0
 
 def readTF_IDF(type, id):
@@ -120,6 +160,11 @@ def saveTF_IDF(type, id, tf_idf):
   src.close()
 
   return 0
+
+def getSim(tf_idf, threshold):
+  sim_classes = []
+  sim_books = []
+  return (sim_classes, sim_books)
 
 def getDiff(a, b):
   return 0.0
