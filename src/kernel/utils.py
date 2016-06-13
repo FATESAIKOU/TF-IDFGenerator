@@ -200,5 +200,4 @@ def getDiff(a, b):
   np_a = np.array(a + ([0] * (max_len - len(a))))
   np_b = np.array(b + ([0] * (max_len - len(b))))
 
-  return sum(np_a)
-  #return sum(np_a * np_b) / float(sqrt(sum(np_a**2)) + sqrt(sum(np_b**2)))
+  return sum(np_a * np_b) / float(sqrt(sum(np_a**2)) + sqrt(sum(np_b**2)))
