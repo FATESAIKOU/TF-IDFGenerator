@@ -1,4 +1,4 @@
-dataBase/
+database/*
 jsons/
 src/config.py
 *.pyc

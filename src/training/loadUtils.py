@@ -39,11 +39,13 @@ def loadWords(words_path):
 
   # Insert words to redis database
   r_cli.delete('words')
+  r_cli.delete('ids')
   for word, word_id in words.items():
     r_cli.hset('words', word, word_id)
+    r_cli.hset('ids', word_id, word)
 
   # Ending
-  print 'Words import complete'
+  print 'Words & Ids import complete'
 
 
 def loadWordAppr(word_appr_path):

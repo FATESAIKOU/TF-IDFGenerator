@@ -30,15 +30,17 @@ def genTFArray(words):
 
   """  counting words appearence """
   for word in words:
-    word_id = int(r.hget('words', word))
+    word_id = r.hget('words', word)
     if word_id is not None:
+      word_id = int(word_id)
       tfs[word_id] += 1
       if tfs[word_id] == 1:
         appr_word_ids.append(word_id)
     else:
       now_count = r.hincrby('words', '__total__')
       r.hset('words', word, now_count)
-      new_word_ids.append(word_id)
+      r.hset('ids', now_count, word)
+      new_word_ids.append(now_count)
       tfs.append(1)
 
   """ update word_appr & idfs in redis """
@@ -53,11 +55,11 @@ def genTFArray(words):
     appr_count = float(r.hset('word_appr', word_id, 1))
     r.hset('idfs', word_id, log(file_count / (appr_count)))
 
-  return (len(words), tfs)
+  return (int(r.hget('words', '__total__')), tfs)
 
 def genTF_IDFArray(tf, word_num):
   r = redis.Redis()
-  tf_idf = [0.0] * word_num
+  tf_idf = [0.0] * (word_num + 1)
   for word_id, count in enumerate(tf):
     tf_idf[word_id] = sqrt(float(count) / float(word_num)) * float(r.hget('idfs', word_id))
 
@@ -194,4 +196,8 @@ def getSim(book_rec, tf_idf, threshold):
   return (sim_classes, sim_books)
 
 def getDiff(a, b):
-  return 0.0
+  max_len = max(len(a), len(b))
+  np_a = np.array(a + ([0] * (max_len - len(a))))
+  np_b = np.array(b + ([0] * (max_len - len(b))))
+
+  return sum(np_a * np_b) / float(sqrt(sum(np_a**2)) + sqrt(sum(np_b**2)))

@@ -37,7 +37,7 @@ g.genIDF(tf_header + '*', words_token_file, idf_file, word_appr_file)
 # Load IDF
 l.loadIDF(idf_file)
 
-# Load Words
+# Load Words & Ids
 l.loadWords(words_token_file)
 
 # Load WordAppr
