@@ -174,7 +174,7 @@ def getSim(book_rec, tf_idf, threshold):
   r = redis.Redis()
 
   size = int(r.hget('words', '__total__')) + 1
-  np_tf_idf = np.array(tf_idf)
+  np_tf_idf = np.array(tf_idf).astype(np.float32)
   sim_classes = []
   sim_books = []
 
@@ -186,7 +186,7 @@ def getSim(book_rec, tf_idf, threshold):
 
     np_c_tf_idf = np.array(c_tf_idf).astype(np.float32)
     np_c_tf_idf.resize(size)
-    cos_diff = getDiff(np_tf_idf, np_c_tf_idf)
+    cos_diff = getDiffGpu(np_tf_idf, np_c_tf_idf)
 
     if cos_diff < threshold:
       c_tf_idf = ( (np_c_tf_idf * class_item[1] + np_tf_idf) / float(class_item[1] + 1) ).tolist()
@@ -203,7 +203,7 @@ def getSim(book_rec, tf_idf, threshold):
 
     np_b_tf_idf = np.array(b_tf_idf)
     np_b_tf_idf.resize(size)
-    cos_diff = getDiff(np_tf_idf, np_b_tf_idf)
+    cos_diff = getDiffGpu(np_tf_idf, np_b_tf_idf)
 
     if cos_diff < threshold:
       sim_books.append((book_id, cos_diff))
@@ -250,23 +250,16 @@ def getDiffGpu(np_a, np_b):
 
   cuda.memcpy_htod(a_gpu, np_a)
   cuda.memcpy_htod(b_gpu, np_b)
-  mult(mult_res_gpu, a_gpu, b_gpu, np.int32(np_a.size), block = (1024, 1, 1), grid = (1, 1, 1))
-  #power(a_gpu, a_gpu, np.int32(np_a.size), block = (256, 1, 1), grid = (128, 1, 1))
-  #power(b_gpu, b_gpu, np.int32(np_b.size), block = (256, 1, 1), grid = (128, 1, 1))
+  mult(mult_res_gpu, a_gpu, b_gpu, np.int32(np_a.size), block = (1024, 1, 1), grid = (128, 1, 1))
+  power(a_gpu, a_gpu, np.int32(np_a.size), block = (1024, 1, 1), grid = (128, 1, 1))
+  power(b_gpu, b_gpu, np.int32(np_b.size), block = (1024, 1, 1), grid = (128, 1, 1))
 
-  #pow_a = np.zeros_like(np_a)
-  #pow_b = np.zeros_like(np_b)
+  pow_a = np.zeros_like(np_a)
+  pow_b = np.zeros_like(np_b)
   mult_res = np.zeros_like(np_a)
 
-  #cuda.memcpy_dtoh(pow_a, a_gpu)
-  #cuda.memcpy_dtoh(pow_b, b_gpu)
+  cuda.memcpy_dtoh(pow_a, a_gpu)
+  cuda.memcpy_dtoh(pow_b, b_gpu)
   cuda.memcpy_dtoh(mult_res, mult_res_gpu)
-  pprint.pprint(mult_res)
 
-  #return mult_res.sum() / float( sqrt(pow_a.sum()) + sqrt(pow_b.sum()) )
-
-
-
-
-
-
+  return mult_res.sum() / float( sqrt(pow_a.sum()) + sqrt(pow_b.sum()) )
