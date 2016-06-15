@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Library</title>
+
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.6/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="assets/index.css">
+  </head>
+  <body>
+
+    <nav>
+      <div class="nav-wrapper">
+        <a href="#!" class="brand-logo center">Library</a>
+        <ul class="right hide-on-med-and-down">
+        </ul>
+      </div>
+    </nav>
+
+    <div class="container main">
+      <div class="row">
+        <div class="input-filed col s12">
+          <select id="type">
+            <option value="file">上傳檔案</option>
+            <option value="string">輸入字串</option>
+          </select>
+        </div>
+
+        <div class="input-field col s12 input" id="stringWrapper">
+          <input type="text" id="string" placeholder="Please enter [a-zA-Z0-9]*">
+        </div>
+
+        <div class="input-field col s12 input" id="fileWrapper">
+          <form id="fileForm">
+            <input type="file" name="file">
+          </form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col s12 center-align">
+          <button class="btn waves-effect waves-light" id="submit">送出</button>
+        </div>
+      </div>
+    </div>
+
+    <footer class="page-footer" style="margin-top: 0px;">
+      <div class="container">
+        <div class="row">
+          <div class="col s9">
+            <h5>緣起</h5>
+            <p>因為Demonic家裡面很多小說，但沒有系統可以幫他做整理，抑或是分類，就想到要做圖書館系統</p>
+          </div>
+          <div class="col s3">
+            <h5>Contact Us</h5>
+            <ul>
+              <li>
+                <a class="grey-text text-lighten-3" href="https://github.com/T-R-I-P/TF-IDFGenerator" target="_blank">
+                  <span>Github</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="footer-copyright">
+        <div class="container">
+          <div class="row">
+            <div class="col s12">
+              &copy; 2016 Demonic & P2P ALL RIGHT RESERVED
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Jquery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <!-- Jquery Form Plugin -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/3.51/jquery.form.min.js"></script>
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.6/js/materialize.min.js"></script>
+
+    <script src="assets/index.js" defer></script>
+  </body>
+</html>
