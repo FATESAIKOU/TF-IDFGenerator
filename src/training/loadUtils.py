@@ -45,7 +45,7 @@ def loadWords(words_path):
     r_cli.hset('ids', word_id, word)
 
   # Insert whole json into redis
-  r_cli.set('word_tarns', json.dumps(words))
+  r_cli.set('word_trans', json.dumps(words))
 
   # Ending
   print 'Words & Ids import complete'

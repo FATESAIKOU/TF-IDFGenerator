@@ -5,7 +5,7 @@ import time
 
 import utils as ut
 
-def upload(filename, threshold, show_times):
+def upload(filename, threshold, show_times = []):
   start = time.time()
 
   """ get Words from provided file """

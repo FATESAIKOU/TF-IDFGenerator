@@ -26,7 +26,7 @@ def getWords(filename):
 def genTFArray(words):
   r = redis.Redis()
   now_count = int( r.hget('words', '__total__') )
-  dict = json.loads( r.get('word_tarns') )
+  dict = json.loads( r.get('word_trans') )
 
   tfs = [0] * (now_count + 1)
   appr_word_ids = []
@@ -216,11 +216,8 @@ def getSim(book_rec, tf_idf, threshold):
     c_tf_idf = readTF_IDF('class', class_id)
 
     np_c_tf_idf = np.array(c_tf_idf).astype(np.float32)
-    if np_c_tf_idf.sum() == 0:
-      continue
 
     np_c_tf_idf.resize(size)
-    #cos_diff = getDiff(np_tf_idf, np_c_tf_idf)
     cos_diff = getDiffGpu(np_tf_idf, np_c_tf_idf, mult, power)
 
     if cos_diff > threshold:
@@ -228,7 +225,7 @@ def getSim(book_rec, tf_idf, threshold):
       sim_classes.append( (class_id, c_tf_idf, cos_diff) )
       class_id_str += ',' + str(class_id)
 
-  cursor.execute('SELECT distinct(`books`.`id`) FROM `books` LEFT JOIN `book_class` on `book_class`.`b_id` = `books`.`id` and `book_class`.`c_id` NOT IN (' + class_id_str + ')')
+  cursor.execute('SELECT `id` FROM `books` WHERE `id` NOT IN (SELECT distinct(`b_id`) FROM `book_class` WHERE `c_id` IN (' + class_id_str + '))')
   for book_item in cursor.fetchall():
     if book_item[0] == book_rec['id']:
       continue
@@ -237,11 +234,8 @@ def getSim(book_rec, tf_idf, threshold):
     b_tf_idf = readTF_IDF('book', book_id)
 
     np_b_tf_idf = np.array(b_tf_idf).astype(np.float32)
-    if np_b_tf_idf.sum() == 0:
-      continue
 
     np_b_tf_idf.resize(size)
-    #cos_diff = getDiff(np_tf_idf, np_b_tf_idf)
     cos_diff = getDiffGpu(np_tf_idf, np_b_tf_idf, mult, power)
 
     if cos_diff > threshold:
