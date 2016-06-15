@@ -77,7 +77,7 @@ def genIDF(tfs_pattern, words_token_path, idf_path, word_appr_path):
   idf = [0] * (words['__total__'] + 1)
   file_num = float( len( input_files ) )
   for word_id, count in enumerate( dir_count ):
-    idf[word_id] = log( file_num / ( count ) )
+    idf[word_id] = log( file_num / ( count + 1.0 ) )
 
   # Output IDF
   output = open(output_file, 'w')
