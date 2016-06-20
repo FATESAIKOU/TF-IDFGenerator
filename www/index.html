@@ -6,7 +6,13 @@
 
     <!-- Compiled and minified CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.6/css/materialize.min.css">
+
+    <!-- Material Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <!-- Jquery Datatable-->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css">
+
     <link rel="stylesheet" href="assets/index.css">
   </head>
   <body>
@@ -23,8 +29,8 @@
       <div class="row">
         <div class="input-filed col s12">
           <select id="type">
-            <option value="file">上傳檔案</option>
             <option value="string">輸入字串</option>
+            <option value="file">上傳檔案</option>
           </select>
         </div>
 
@@ -44,6 +50,35 @@
         </div>
       </div>
     </div>
+    <div class="container result">
+      <div class="row">
+        <div class="col s12 center-align">
+          <h5>Relative Classes</h5>
+        </div>
+        <div class="col s12 center-align">
+          <canvas id="classes" width="400" height="400"></canvas>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col s12 center-align">
+          <h5>Relative Keywords</h5>
+        </div>
+        <div class="col s12 center-align">
+          <table id="keyword">
+            <thead>
+              <tr>
+                <th>Class ID</th>
+                <th>Word ID</th>
+                <th>Word</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
 
     <footer class="page-footer" style="margin-top: 0px;">
       <div class="container">
@@ -64,6 +99,7 @@
           </div>
         </div>
       </div>
+
       <div class="footer-copyright">
         <div class="container">
           <div class="row">
@@ -75,10 +111,18 @@
       </div>
     </footer>
 
+    <!-- chart.js for draw-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.6/Chart.min.js"></script>
+
     <!-- Jquery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+
     <!-- Jquery Form Plugin -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/3.51/jquery.form.min.js"></script>
+
+    <!-- Jquery Datatable -->
+    <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+
     <!-- Compiled and minified JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.6/js/materialize.min.js"></script>
 
