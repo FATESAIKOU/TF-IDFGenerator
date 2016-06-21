@@ -41,7 +41,8 @@ function event() {
           console.log(database);
 
           drawClasses(database.classes_books_num);
-          produceKeywordTable(database.classes_keyword);
+          produceClassesKeywordTable(database.classes_keyword);
+          produceBooksKeywordTable(database.books_keyword, database.books);
 
           $('.main').hide();
           $('.result').show();
@@ -53,9 +54,17 @@ function event() {
     } else if(type == 'string') {
       data.string = $('#string').val();
 
-      $.post('/php/search.php', data, function(result) {
-        Materialize.toast(`Submit Success`, 4000);
-        console.log(result);
+      $.post('/php/search.php', data, function(r_string) {
+        Materialize.toast(`Submit String Success`, 4000);
+        database = JSON.parse(r_string);
+        console.log(database);
+
+        drawClasses(database.classes_books_num);
+        produceClassesKeywordTable(database.classes_keyword);
+        produceBooksKeywordTable(database.books_keyword, database.books);
+
+        $('.main').hide();
+        $('.result').show();
       });
     }
   });
@@ -96,7 +105,7 @@ function drawClasses(classes) {
   console.log('Finish Classes Picture', data);
 }
 
-function produceKeywordTable(keyword) {
+function produceClassesKeywordTable(keyword) {
   var i;
   var text = '';
 
@@ -119,8 +128,38 @@ function produceKeywordTable(keyword) {
     text += `</tr>`;
   });
 
-  $('#keyword tbody').html(text);
-  $('#keyword').DataTable();
+  $('#classes_keyword tbody').html(text);
+  $('#classes_keyword').DataTable();
+}
+
+function produceBooksKeywordTable(keyword, books) {
+  var i;
+  var text = '';
+
+  var book_id;
+  var book_name;
+  var word_id;
+  var word;
+  var value;
+
+  $.each(keyword, function(idx, val) {
+    word_id = idx;
+    word = val['word'];
+    book_id = val['book_id'];
+    book_name = books[book_id];
+    value = val['value'];
+
+    text += `<tr>`;
+    text += `<td>${book_id}</td>`;
+    text += `<td>${book_name}</td>`;
+    text += `<td>${word_id}</td>`;
+    text += `<td>${word}</td>`;
+    text += `<td>${value}</td>`;
+    text += `</tr>`;
+  });
+
+  $('#books_keyword tbody').html(text);
+  $('#books_keyword').DataTable();
 }
 
 function get_random_color() {
