@@ -6,7 +6,9 @@ $(document).ready(function() {
 var database;
 
 function init() {
-  $('.result').hide();
+  $('.resultFile').hide();
+  $('.resultString').hide();
+
   $('#type').material_select();// init select
 }
 
@@ -45,7 +47,7 @@ function event() {
           produceBooksKeywordTable(database.books_keyword, database.books);
 
           $('.main').hide();
-          $('.result').show();
+          $('.resultFile').show();
         },
         error: function() {
           Materialize.toast('Upload Error', 4000);
@@ -59,12 +61,15 @@ function event() {
         database = JSON.parse(r_string);
         console.log(database);
 
-        drawClasses(database.classes_books_num);
-        produceClassesKeywordTable(database.classes_keyword);
-        produceBooksKeywordTable(database.books_keyword, database.books);
+        if(database.status == 'fail') {
+          Materialize.toast('Not Found This Keyword');
+          return;
+        }
+
+        produceStringBooksKeywordTable(database.tf_idf);
 
         $('.main').hide();
-        $('.result').show();
+        $('.resultString').show();
       });
     }
   });
@@ -160,6 +165,36 @@ function produceBooksKeywordTable(keyword, books) {
 
   $('#books_keyword tbody').html(text);
   $('#books_keyword').DataTable();
+}
+
+function produceStringBooksKeywordTable(keyword) {
+  var i;
+  var text = '';
+
+  var book_id;
+  var book_name;
+  var word_id;
+  var word;
+  var value;
+
+  $.each(keyword, function(idx, val) {
+    book_id = idx;
+    word_id = val['word_id'];
+    word = val['word_name'];
+    book_name = val['book_name'];
+    value = val['value'];
+
+    text += `<tr>`;
+    text += `<td>${book_id}</td>`;
+    text += `<td>${book_name}</td>`;
+    text += `<td>${word_id}</td>`;
+    text += `<td>${word}</td>`;
+    text += `<td>${value}</td>`;
+    text += `</tr>`;
+  });
+
+  $('#books_string_keyword tbody').html(text);
+  $('#books_string_keyword').DataTable();
 }
 
 function get_random_color() {

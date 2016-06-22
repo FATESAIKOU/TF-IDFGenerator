@@ -58,4 +58,11 @@ def upload(filename, threshold, show_times = []):
     print 'create class time:\t', end - start
   start = end
 
-  return 0
+  return (sim_classes, sim_books)
+
+def searchByBookByMe(filepath):
+  print 'Hello'
+
+def searchByStringByMe(string):
+  print 'Hello'
+
