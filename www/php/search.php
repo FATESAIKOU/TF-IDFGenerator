@@ -10,9 +10,11 @@
     $type = $_POST['type'];
     if($type == 'file') {
         $file = $_FILES;
+        $name = '/tmp/'.$file['file']['name'];
         $tmp_name = $file['file']['tmp_name'];
+        rename($tmp_name, $name);
 
-        $command = $shellFile.' '.$dir.' '.$pythonFile.' '.$type.' '.$tmp_name;
+        $command = $shellFile.' '.$dir.' '.$pythonFile.' '.$type.' '.$name;
     } else if($type == 'string') {
         $request = $_POST['string'];
 
